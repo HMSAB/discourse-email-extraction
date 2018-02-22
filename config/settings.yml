@@ -1,0 +1,4 @@
+plugins:
+  email_extraction_enabled:
+    default: true
+    client: true

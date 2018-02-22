@@ -12,11 +12,53 @@ after_initialize do
 
   class ::ExtractionHandler
 
+    # Create or extract existing users.
+    def self.create_or_find_users(emails, op_id)
+      @users = []
+      if emails.size > 0
+        emails.each do |address|
+          if address != SiteSetting.pop3_polling_username
+            user = User.find_by_email(address)
+            if user.nil? && SiteSetting.enable_staged_users
+              begin
+                user = User.create!(
+                  email: address,
+                  username: ::ExtractionHandler.generate_random_user(),
+                  name: User.suggest_name(address),
+                  staged: true
+                )
+              rescue
+                user = nil
+              end
+            end
+          end
+          @users << user
+        end
+      end
+      @users
+    end
+
+    #Generate a random username
+    def self.generate_random_user()
+      name = "anon" + 10.times.map{rand(10)}.join.to_s
+      name
+    end
+
+    # Extract and invite new email users
     def self.extract_email_details(entry)
       if !entry.raw_email.empty?
         @mail = Mail.new(entry.raw_email)
-        @to = @mail[:to]
-        @cc = @mail[:cc]
+        @to_users = ::ExtractionHandler.create_or_find_users(@mail.to&.map(&:downcase), entry.user_id)
+        @cc_users = ::ExtractionHandler.create_or_find_users(@mail.cc&.map(&:downcase), entry.user_id)
+        max_users = 0
+        @cc_users.each do |user|
+          if max_users < 5
+            entry.topic.topic_allowed_users.create!(user_id: user.id)
+            TopicUser.auto_notification_for_staging(user.id, entry.topic_id, TopicUser.notification_reasons[:auto_watch])
+            entry.topic.add_small_action(user, "invited_user", user.username)
+            max_users += 1
+          end
+        end
       end
     end
 

@@ -1,0 +1,3 @@
+en:
+  site_settings:
+    email_extraction_enabled: "Enable automatic extraction and inviation of users included in an email chain."
