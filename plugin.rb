@@ -21,13 +21,28 @@ after_initialize do
             user = User.find_by_email(address)
             if user.nil? && SiteSetting.enable_staged_users
               begin
-                user = User.create!(
-                  email: address,
-                  username: ::ExtractionHandler.generate_random_user(),
-                  name: User.suggest_name(address),
-                  staged: true
-                )
-              rescue
+                if SiteSetting.email_extraction_create_full_user
+                  random_password = Array.new(15){[*"A".."Z", *"0".."9", *"!".."?"].sample}.join
+                  puts random_password
+                  user = User.create(
+                    email: address,
+                    username: ::ExtractionHandler.generate_random_user(),
+                    name: User.suggest_name(address),
+                    password: random_password
+                  )
+                  user.approve(Discourse.system_user, true)
+                  user.activate
+                else
+                  user = User.create!(
+                    email: address,
+                    username: ::ExtractionHandler.generate_random_user(),
+                    name: User.suggest_name(address),
+                    staged: true
+                  )
+                end
+              rescue Exception => e
+                puts e.message
+                puts e.backtrace.inspect
                 user = nil
               end
             end
@@ -40,7 +55,7 @@ after_initialize do
 
     #Generate a random username
     def self.generate_random_user()
-      name = "anon" + 10.times.map{rand(10)}.join.to_s
+      name = SiteSetting.email_extraction_username_prepend + 10.times.map{rand(10)}.join.to_s
       name
     end
 
@@ -52,10 +67,10 @@ after_initialize do
         @cc_users = ::ExtractionHandler.create_or_find_users(@mail.cc&.map(&:downcase), entry.user_id)
         max_users = 0
         @cc_users.each do |user|
-          if max_users < 5
+          if max_users < SiteSetting.email_extraction_max_users
             entry.topic.topic_allowed_users.create!(user_id: user.id)
             TopicUser.auto_notification_for_staging(user.id, entry.topic_id, TopicUser.notification_reasons[:auto_watch])
-            entry.topic.add_small_action(user, "invited_user", user.username)
+            entry.topic.add_small_action(Discourse.system_user, "invited_user", user.username)
             max_users += 1
           end
         end

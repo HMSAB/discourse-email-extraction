@@ -1,3 +1,6 @@
 en:
   site_settings:
     email_extraction_enabled: "Enable automatic extraction and inviation of users included in an email chain."
+    email_extraction_create_full_user: "Enable to create a random user for cc'd/bcc'd users"
+    email_extraction_username_prepend: "Identifier to prepend cc'd/bcc'd automatically created usernames with"
+    email_extraction_max_users: "Maximum number of users to extract/create from an email"

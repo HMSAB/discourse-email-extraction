@@ -2,3 +2,8 @@ plugins:
   email_extraction_enabled:
     default: true
     client: true
+  email_extraction_create_full_user:
+    default: true
+    client: true
+  email_extraction_username_prepend: "anon"
+  email_extraction_max_users: 5
