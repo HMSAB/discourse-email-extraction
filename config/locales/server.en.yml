@@ -9,7 +9,7 @@ en:
     email_extraction_notify_staged_user: "Enable to send a notification to the staged user that they were included in the topic."
   email_extracted_new_user:
     title: "A new email user has been created!"
-    subject_template: "You have been added to %{site_name}"
+    subject_template: "You have been added to %{site_name} for topic %{topic}"
     text_body_template: |
       Hello
       Your email was included in a recent submission to %{site_name}.
@@ -27,7 +27,7 @@ en:
       Password - **%{random_password}**
   email_extracted_existing_user:
     title: "You were included in a thread!"
-    subject_template: "You were included in a thread on %{site_name}"
+    subject_template: "You were included on topic %{topic_id} on %{site_name}"
     text_body_template: |
       Hello
       Your email was included in a recent submission to %{site_name}.
@@ -37,7 +37,7 @@ en:
       Topic - URL - %{base_url}/t/%{topic}
   email_extracted_staged_user:
     title: "You were included in a thread!"
-    subject_template: "You were included in a thread on %{site_name}"
+    subject_template: "You were included on topic %{topic} on %{site_name}"
     text_body_template: |
       Hello
       Your email was included in a recent submission to %{site_name}.
