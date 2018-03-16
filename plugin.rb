@@ -41,7 +41,7 @@ after_initialize do
                   )
                   user.approve(Discourse.system_user, true)
                   user.activate
-                  ::ExtractionHandler.send_user_email(user.email, user.username, random_password, topic_id)
+                  ::ExtractionHandler.send_user_email(user.email, user.username, random_password, topic_id, false)
                 else
                   user = User.create!(
                     email: address,
@@ -49,6 +49,9 @@ after_initialize do
                     name: User.suggest_name(address),
                     staged: true
                   )
+                  if SiteSetting.email_extraction_notify_staged_user
+                    ::ExtractionHandler.send_user_email(user.email, user.username, nil, topic_id, true)
+                  end
                 end
               rescue Exception => e
                 puts e.message
@@ -56,7 +59,7 @@ after_initialize do
                 user = nil
               end
             else
-              ::ExtractionHandler.send_user_email(user.email, user.username, nil, topic_id)
+              ::ExtractionHandler.send_user_email(user.email, user.username, nil, topic_id, false)
             end
           end
           @users << user
@@ -80,6 +83,10 @@ after_initialize do
       if !entry.raw_email.empty?
         begin
           @mail = Mail.new(entry.raw_email)
+          from_user = User.find_by_email(@mail.from)
+          if from_user.staged && SiteSetting.email_extraction_notify_staged_user
+            ::ExtractionHandler.send_user_email(from_user.email, from_user.username, nil, entry.topic_id, true)
+          end
           @all_emails = []
           #cc'd users aren't included in the body so we have to pull those manually.
           @cc_users = @mail.cc&.map(&:downcase)
@@ -126,10 +133,14 @@ after_initialize do
     end
 
     #Send user creation email
-    def self.send_user_email(to_address, username, password, topic_id)
+    def self.send_user_email(to_address, username, password, topic_id, staged)
       if SiteSetting.email_extraction_notify_users
         if password.nil?
-          ExtractionEmailing::NewUserExtractionEmail.new.execute(template: 'email_extracted_existing_user', to_address: to_address, topic_id: topic_id)
+          if staged
+            ExtractionEmailing::NewUserExtractionEmail.new.execute(template: 'email_extracted_staged_user', to_address: to_address, topic_id: topic_id)
+          else
+            ExtractionEmailing::NewUserExtractionEmail.new.execute(template: 'email_extracted_existing_user', to_address: to_address, topic_id: topic_id)
+          end
         else
           ExtractionEmailing::NewUserExtractionEmail.new.execute(template: 'email_extracted_new_user', to_address: to_address, target_username: username, random_password: password, topic_id: topic_id)
         end

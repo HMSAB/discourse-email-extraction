@@ -9,5 +9,7 @@ plugins:
     default: true
   email_extraction_notify_users:
     default: true
+  email_extraction_notify_staged_user:
+    default: true
   email_extraction_username_prepend: "anon"
   email_extraction_max_users: 5
