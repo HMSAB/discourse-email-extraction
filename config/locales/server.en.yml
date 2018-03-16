@@ -4,3 +4,33 @@ en:
     email_extraction_create_full_user: "Enable to create a random user for cc'd/bcc'd users"
     email_extraction_username_prepend: "Identifier to prepend cc'd/bcc'd automatically created usernames with"
     email_extraction_max_users: "Maximum number of users to extract/create from an email"
+    email_extraction_notify_users: "Enable to send users included users a notification."
+    email_extraction_should_invite: "Enable to allow users to be invited to the thread."
+  email_extracted_new_user:
+    title: "A new email user has been created!"
+    subject_template: "You have been added to %{site_name}"
+    text_body_template: |
+      Hello
+      Your email was included in a recent submission to %{site_name}.
+      We have automatically created a user for you to follow the
+      thread.
+
+      You were added to the following thread-
+      URL - %{base_url}/t/%{topic}
+
+      Your user temporary user credentials can be found below. Please ensure
+      to update these credentials on first login.
+
+      Credentials-
+      Username - **%{new_username}**
+      Password - **%{random_password}**
+  email_extracted_existing_user:
+    title: "You were included in a thread!"
+    subject_template: "You were included in a thread on %{site_name}"
+    text_body_template: |
+      Hello
+      Your email was included in a recent submission to %{site_name}.
+      You appear to already have a user associated to your email address.
+      You can log in and check out the topic found below.
+
+      Topic - URL - %{base_url}/t/%{topic}
