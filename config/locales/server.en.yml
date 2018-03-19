@@ -27,7 +27,7 @@ en:
       Password - **%{random_password}**
   email_extracted_existing_user:
     title: "You were included in a thread!"
-    subject_template: "You were included on topic %{topic_id} on %{site_name}"
+    subject_template: "You were included on topic %{topic} on %{site_name}"
     text_body_template: |
       Hello
       Your email was included in a recent submission to %{site_name}.
