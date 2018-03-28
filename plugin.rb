@@ -149,9 +149,11 @@ after_initialize do
   end
 
   DiscourseEvent.on(:post_created || :topic_created) do |entry|
-    if entry.via_email
-      if ::ExtractionHandler.extract_allowed?(entry)
-        ::ExtractionHandler.extract_email_details(entry)
+    if SiteSetting.email_extraction_enabled
+      if entry.via_email
+        if ::ExtractionHandler.extract_allowed?(entry)
+          ::ExtractionHandler.extract_email_details(entry)
+        end
       end
     end
   end
