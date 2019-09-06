@@ -39,7 +39,8 @@ after_initialize do
                     name: User.suggest_name(address),
                     password: random_password
                   )
-                  user.approve(Discourse.system_user, true)
+                  reviewable = ReviewableUser.find_by(target: user)
+                  reviewable&.perform(Discourse.system_user, :approve_user, send_email: true)
                   user.activate
                   ::ExtractionHandler.send_user_email(user.email, user.username, random_password, topic_id, false)
                 else
