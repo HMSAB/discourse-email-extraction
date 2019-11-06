@@ -1,3 +1,4 @@
+require 'email'
 require 'email/build_email_helper'
 
 class NewUserMailer < ActionMailer::Base
