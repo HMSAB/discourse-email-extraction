@@ -1,7 +1,7 @@
-require_dependency 'email/message_builder'
+require 'email'
+require 'email/build_email_helper'
 
 class NewUserMailer < ActionMailer::Base
-  include Email::BuildEmailHelper
 
   def send_email(template, to_address, target_username, random_password, topic)
     if target_username.nil?
